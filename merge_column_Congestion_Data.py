@@ -1,7 +1,7 @@
 import pandas as pd
 
 # 두 번째 데이터셋 동일하게 처리
-dataset_Congestion = pd.read_csv('original_dataset/dataset_Congestion.csv', encoding='cp949')
+dataset_Congestion = pd.read_csv('test_dataset/converted_dataset_Congestion.csv', encoding='cp949')
 
 # 필요한 열 추출 및 시간 단위로 합산
 dataset_Congestion['06시이전'] = dataset_Congestion[['5시30분', '6시00분']].sum(axis=1)/2

@@ -14,7 +14,7 @@ for idx, row in dataset_Congestion.iterrows():
     line = row['호선']
     factor = conversion_factors.get(line, 1)  # 기본적으로 1을 곱하도록 설정
     for column in time_columns:
-        dataset_Congestion.at[idx, column] = row[column] * factor
+        dataset_Congestion.at[idx, column] = int(row[column] * factor) # 소수점 안남기고 정수로 처리
 
 # 결과 출력
 print(dataset_Congestion)

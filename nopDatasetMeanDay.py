@@ -22,11 +22,6 @@ def change_day(day):
 df_Nop['요일구분'] = df_Nop['요일구분'].apply(change_day)
 
 
-print(df_Nop.head())
-
-
-df_Nop['수송일자']
-
 new_df_Nop = df_Nop.groupby(['역명','호선','승하차구분','요일구분']).mean(numeric_only=True)
 new_df_Nop.drop(['연번'],axis=1,inplace=True)
 

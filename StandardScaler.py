@@ -11,7 +11,7 @@ def scale_csv(csv_file):
     # CSV 파일 읽기
     data = pd.read_csv(csv_file , encoding="cp949")
     # 데이터 프레임에서 숫자형 열 선택
-    numeric_cols = data.iloc[:, 6:].columns
+    numeric_cols = data.iloc[:, 7:].columns
     # StandardScaler 객체 생성
     scaler = StandardScaler()
     # 선택된 열을 표준화
@@ -20,10 +20,12 @@ def scale_csv(csv_file):
 
 # 스케일링된 데이터프레임 생성
 scaled_data = scale_csv("test_dataset/after_handling_nan.csv.csv")
-scaled_data.to_csv("test_dataset/scaled_data.csv", index=False, encoding='cp949')
+
+# 스케일된 데이터를 새로운 CSV 파일로 저장
+scaled_data.to_csv("test_dataset/scaled_data_standard.csv", index=False, encoding='cp949')
 
 # 상관 행렬 계산
-correlation_matrix = scaled_data.iloc[:, 6:].corr()
+correlation_matrix = scaled_data.iloc[:, 7:].corr()
 
 # 히트맵 그리기
 plt.figure(figsize=(12, 10))

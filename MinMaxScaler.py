@@ -30,5 +30,5 @@ correlation_matrix_min_max = scaled_data_min_max.iloc[:, 7:].corr()
 # 히트맵 그리기
 plt.figure(figsize=(12, 10))
 sns.heatmap(correlation_matrix_min_max, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
-plt.title('상관 관계 히트맵 (6시 이전부터 Min-Max 스케일링)')
+plt.title('상관 관계 히트맵')
 plt.show()

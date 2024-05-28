@@ -16,7 +16,7 @@ print(df_Nop)
 # df_Nop[time_column] = df_Nop[time_column].replace(np.nan,0)
 
 # 시간대별로 결측치가 몇개 존재하는지 확인 코드
-nan_count = (df_Nop == np.nan).sum()
+nan_count = df_Nop.isnull().sum()
 
 print(nan_count)
 

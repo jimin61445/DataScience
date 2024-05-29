@@ -20,6 +20,9 @@ total_removed_num = 0
 # group_key가 (150, 0)이면 역번호 150, 승차 / (150, 1)이면 역번호 150, 하차 데이터
 for group_key, group_df in grouped_data:
     print(f"[{group_key}번째 그룹 값]")
+    # 이상치 저장용 세트
+    outlier_set = set()
+
     # 시간대별로 이상치 구하고 제거
     for t in timeColumns:
         print(f"{t} 시간의 이상치 제거")
@@ -35,11 +38,17 @@ for group_key, group_df in grouped_data:
         print(f"[std] {std}")
         print(f"[outlier index] {idx}")
         print(f"[removed num] {len(idx)}")
-        # 이상치 개수 누적
-        total_removed_num += len(idx)
-        # 그룹에서 이상치들을 drop
-        group_df = group_df.drop(idx)
+        # 세트에 이상치 추가
+        outlier_set.update(idx)
+
         print()
+    # 그룹에 존재하는 데이터만 걸러냄 / 이미 삭제한 데이터 중복 접근 방지
+    valid_outliers_idx = [idx for idx in outlier_set if idx in group_df.index]
+    print(valid_outliers_idx)
+    # 그룹에서 이상치들을 drop
+    group_df = group_df.drop(valid_outliers_idx)
+    # 이상치 개수 누적
+    total_removed_num += len(valid_outliers_idx)
     # 존재하는 시간대 다 돌았으면 파이널에 그 그룹 데이터 누적
     final_df = pd.concat([final_df,group_df])
 # 누적된 최종 df 값을 csv 파일로 저장

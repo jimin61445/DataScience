@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from tslearn.clustering import TimeSeriesKMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import RobustScaler
+
 from sklearn.metrics import silhouette_score,silhouette_samples
 import matplotlib.cm as cm
 
@@ -15,7 +17,7 @@ time_columns = ['06시이전', '06-07시간대', '07-08시간대', '08-09시간�
 
 df_name = pd.read_csv('test_dataset/station_name.csv',encoding='cp949')
 
-df = pd.read_csv('test_dataset/scaled_data_standard.csv',encoding='cp949')
+df = pd.read_csv('test_dataset/scaled_data_robust.csv',encoding='cp949')
 df = df.drop(df.columns[:3], axis=1)
 new_df = df.groupby(['역번호','승하차구분']).mean(numeric_only=True)
 new_df = new_df.groupby('역번호').apply(lambda x: x[time_columns].iloc[0] - x[time_columns].iloc[1])
@@ -40,7 +42,7 @@ plt.legend()
 plt.show()
 
 X = merged_df[time_columns].values
-scaler = StandardScaler()
+scaler = RobustScaler()
 X_scaled = scaler.fit_transform(X)
 
 # # 클러스터 수 범위
@@ -74,30 +76,30 @@ X_scaled = scaler.fit_transform(X)
 # # best_k = np.argmax(silhouette_scores) + min_clusters
 # # print(f"최적의 클러스터 수 (K): {best_k}")
 
-# # K-means 클러스터링
-# n_clusters = 3  # 클러스터 수
-# kmeans = TimeSeriesKMeans(n_clusters=n_clusters, metric="dtw", verbose=False, random_state=0)
-# y_pred = kmeans.fit_predict(X_scaled)
+# K-means 클러스터링
+n_clusters = 2  # 클러스터 수
+kmeans = TimeSeriesKMeans(n_clusters=n_clusters, metric="dtw", verbose=False, random_state=0)
+y_pred = kmeans.fit_predict(X_scaled)
 
-# merged_df['cluster'] = y_pred
+merged_df['cluster'] = y_pred
 
-# # 클러스터링 결과 출력
-# print("클러스터링 결과:")
-# for cluster_idx in range(n_clusters):
-#     print(f"클러스터 {cluster_idx + 1}에 속하는 데이터 개수:", np.sum(y_pred == cluster_idx))
+# 클러스터링 결과 출력
+print("클러스터링 결과:")
+for cluster_idx in range(n_clusters):
+    print(f"클러스터 {cluster_idx + 1}에 속하는 데이터 개수:", np.sum(y_pred == cluster_idx))
     
-# # 클러스터링 결과 시각화
-# for cluster_idx in range(n_clusters):
-#     plt.figure(figsize=(8, 6))
-#     for series_idx in range(len(X_scaled[y_pred == cluster_idx])):
-#         plt.plot(time_columns, X_scaled[y_pred == cluster_idx][series_idx], "k-", alpha=0.2)
-#     plt.plot(time_columns, kmeans.cluster_centers_[cluster_idx], "r-", linewidth=2)
-#     plt.title(f"Cluster {cluster_idx + 1}")
-#     plt.xlabel('시간대')
-#     plt.ylabel('표준화된 탑승객 수')
-#     plt.xticks(rotation=45)
-#     plt.tight_layout()
-#     plt.show()
+# 클러스터링 결과 시각화
+for cluster_idx in range(n_clusters):
+    plt.figure(figsize=(8, 6))
+    for series_idx in range(len(X_scaled[y_pred == cluster_idx])):
+        plt.plot(time_columns, X_scaled[y_pred == cluster_idx][series_idx], "k-", alpha=0.2)
+    plt.plot(time_columns, kmeans.cluster_centers_[cluster_idx], "r-", linewidth=2)
+    plt.title(f"Cluster {cluster_idx + 1}")
+    plt.xlabel('시간대')
+    plt.ylabel('표준화된 탑승객 수')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
 
 def visualize_silhouette(cluster_lists,X_features):
     n_cols = len(cluster_lists)
@@ -153,8 +155,8 @@ def visualize_silhouette(cluster_lists,X_features):
             
         axs[0,ind].axvline(x=sil_avg, color="red", linestyle="--")
 
-visualize_silhouette([2,10,11,12,13,14,50,100],X_scaled)
-plt.show()
-print(merged_df)
+# visualize_silhouette([2,3,4,5],X_scaled)
+# plt.show()
+# print(merged_df)
 
 merged_df.to_csv('test_dataset/clustered_data.csv', encoding='cp949')

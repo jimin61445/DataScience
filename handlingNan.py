@@ -30,8 +30,8 @@ print(nan_count)
 
 filter_data = df_Nop[df_Nop['수송일자']<=date_threshold]
 target_data = df_Nop[df_Nop['수송일자']>date_threshold]
-mean_until_july = filter_data.groupby(['역번호','승하차구분']).mean()
-mean = df_Nop.groupby(['역번호','승하차구분']).mean()
+mean_until_july = filter_data.groupby(['역번호','승하차구분']).mean(numeric_only=True)
+mean = df_Nop.groupby(['역번호','승하차구분']).mean(numeric_only=True)
 
 print(mean_until_july)
 mean_until_july.to_csv('test_dataset/mean_until_july.csv',encoding='cp949')
@@ -83,9 +83,14 @@ nan_count = df_Nop.isnull().sum()
 
 print(nan_count)
 
-
 # 6시 이전 운행안하는 경우와 24시이후 운행안하는 경우 고려하여 나머지 결측치들은 0으로 대체
 df_Nop[time_column] = df_Nop[time_column].replace(np.nan,0)
 
 
+df_name = df_Nop[['역명','역번호']]
+df_name = df_name.drop_duplicates()
+df_name = df_name.reset_index(drop=True)
+
 df_Nop.to_csv("test_dataset/after_handling_nan.csv",encoding='cp949')
+df_name.to_csv("test_dataset/station_name.csv",encoding='cp949')
+

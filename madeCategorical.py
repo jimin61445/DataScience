@@ -3,7 +3,9 @@ import numpy as np
 
 df_Nop = pd.read_csv("original_dataset/dataset_Nop.csv",encoding='cp949')
 
-df_Nop.drop(['역명'],axis=1,inplace=True)
+
+
+# df_Nop.drop(['역명'],axis=1,inplace=True)
 
 df_Nop['호선'] = df_Nop['호선'].str.replace('호선','').astype(int)
 

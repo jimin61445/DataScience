@@ -24,7 +24,7 @@ nan_df = df_Nop[df_Nop[time_column].isna().any(axis=1)]
 
 print(nan_df)
 
-nan_df.to_csv("test_dataset/nan_datset_Nop.csv",encoding='cp949')
+nan_df.to_csv("test_dataset/nan_datseta_Nop.csv",encoding='cp949')
 
 
 # df_Nop['수송일자'] = pd.to_datetime(df_Nop["수송일자"])

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-df_Nop = pd.read_csv('test_dataset/categorical_dataset.csv',encoding='cp949')
+df_Nop = pd.read_csv('test_dataset/after_handling_nan.csv.csv',encoding='cp949')
 
 time_column = ['06시이전','06-07시간대','07-08시간대','08-09시간대','09-10시간대','10-11시간대','11-12시간대','12-13시간대','13-14시간대','14-15시간대','15-16시간대','16-17시간대','17-18시간대','18-19시간대','19-20시간대','20-21시간대','21-22시간대','22-23시간대','23-24시간대','24시이후']
 

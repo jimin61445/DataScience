@@ -21,6 +21,9 @@ total_removed_num = 0
 # If group_key is (150, 0), 역번호 value is 150 and 승차 / If (150, 1), 역번호 value is 150 and 하차 data
 for group_key, group_df in grouped_data:
     print(f"[{group_key}번째 그룹 값]")
+    # Make a set for storing outliers
+    outlier_set = set()
+
     # Remove outlier by time slot
     for t in time_columns:
         print(f"{t} 시간의 이상치 제거")
@@ -34,13 +37,19 @@ for group_key, group_df in grouped_data:
         print(f"[min] {np.min(group_df[t])}")
         print(f"[mean] {mean}")
         print(f"[std] {std}")
-        print(f"[outlier index] {idx}")
+        print(f"[outlier index] {idx}") 
         print(f"[removed num] {len(idx)}")
-        # Accumulate outlier number
-        total_removed_num += len(idx)
-        # Drop outliers from group
-        group_df = group_df.drop(idx)
+        # Add outlier index to set
+        outlier_set.update(idx)
         print()
+    # Filter only data that exists in a group
+    # Prevent duplicate data access that has already been deleted
+    valid_outliers_idx = [idx for idx in outlier_set if idx in group_df.index]
+    print(valid_outliers_idx)
+    # Accumulate outlier number
+    total_removed_num += len(valid_outliers_idx)
+    # Drop outliers from group
+    group_df = group_df.drop(valid_outliers_idx)
     # Append group data to final df
     final_df = pd.concat([final_df,group_df])
 # Save csv file

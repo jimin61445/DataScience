@@ -6,6 +6,7 @@ from tslearn.clustering import TimeSeriesKMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import Normalizer
 
 from sklearn.metrics import silhouette_score,silhouette_samples
 import matplotlib.cm as cm
@@ -17,12 +18,18 @@ time_columns = ['06시이전', '06-07시간대', '07-08시간대', '08-09시간�
 
 df_name = pd.read_csv('test_dataset/station_name.csv',encoding='cp949')
 
-df = pd.read_csv('test_dataset/scaled_data_robust.csv',encoding='cp949')
-df = df.drop(df.columns[:3], axis=1)
+df = pd.read_csv('test_dataset/standard_row.csv',encoding='cp949')
+
+norm =  Normalizer()
+
+# df = df.drop(df.columns[:3], axis=1)
 new_df = df.groupby(['역번호','승하차구분']).mean(numeric_only=True)
 new_df = new_df.groupby('역번호').apply(lambda x: x[time_columns].iloc[0] - x[time_columns].iloc[1])
+new_df[time_columns] = norm.fit_transform(new_df[time_columns])
 
-merged_df = pd.merge(df_name,new_df,on='역번호',how='left')
+
+merged_df = pd.merge(new_df,df_name,on='역번호',how='left')
+
 
 print(merged_df)
 
@@ -34,16 +41,20 @@ plt.rcParams['axes.unicode_minus'] = False
 for idx,val in new_df.iterrows():
     plt.plot(val.index, val.values,"k-", alpha=0.2)
 
-
 plt.xlabel('시간대')
 plt.ylabel('값')
-plt.title('각 역의 시간대별 값 변화')
+plt.title(idx)
 plt.legend()
 plt.show()
 
+
+
+
+# selected_rows = merged_df[merged_df['역번호']<500]
+
 X = merged_df[time_columns].values
-scaler = RobustScaler()
-X_scaled = scaler.fit_transform(X)
+
+
 
 # # 클러스터 수 범위
 # min_clusters = 2
@@ -53,9 +64,9 @@ X_scaled = scaler.fit_transform(X)
 # inertia = []
 # silhouette_scores = []
 # for k in range(min_clusters, max_clusters + 1):
-#     kmeans = TimeSeriesKMeans(n_clusters=k, metric="dtw", verbose=False, random_state=0)
-#     y_pred = kmeans.fit_predict(X_scaled)
-#     silhouette_scores.append(silhouette_score(X_scaled, y_pred))
+#     kmeans = TimeSeriesKMeans(n_clusters=k, metric="euclidean", verbose=False, random_state=0)
+#     y_pred = kmeans.fit_predict(X)
+#     silhouette_scores.append(silhouette_score(X, y_pred))
 #     inertia.append(kmeans.inertia_)
 
 
@@ -63,25 +74,22 @@ X_scaled = scaler.fit_transform(X)
 # plt.plot(range(min_clusters, max_clusters + 1), inertia, marker='o')
 # plt.xlabel('클러스터 수 (K)')
 # plt.ylabel('inertia')
-# plt.title('클러스터 수에 따른 실루엣 스코어 변화')
+# plt.title('클러스터 수에 따른 Inertia 변화')
 # plt.xticks(range(min_clusters, max_clusters + 1))
 # plt.grid(True)
 # plt.show()
 
-# # 최적의 K 값을 결정하여 출력
-# optimal_k = np.argmin(np.diff(inertia)) + 2
-# print("최적의 K 값:", optimal_k)
 
-# # # 최적의 K 값 찾기
-# # best_k = np.argmax(silhouette_scores) + min_clusters
-# # print(f"최적의 클러스터 수 (K): {best_k}")
+# # 최적의 K 값 찾기
+# best_k = np.argmax(silhouette_scores) + min_clusters
+# print(f"최적의 클러스터 수 (K): {best_k}")
 
 # K-means 클러스터링
 n_clusters = 2  # 클러스터 수
-kmeans = TimeSeriesKMeans(n_clusters=n_clusters, metric="dtw", verbose=False, random_state=0)
-y_pred = kmeans.fit_predict(X_scaled)
+kmeans = TimeSeriesKMeans(n_clusters=n_clusters, metric="euclidean", verbose=False, random_state=0)
+y_pred = kmeans.fit_predict(X)
 
-merged_df['cluster'] = y_pred
+# merged_df['cluster'] = y_pred
 
 # 클러스터링 결과 출력
 print("클러스터링 결과:")
@@ -91,8 +99,8 @@ for cluster_idx in range(n_clusters):
 # 클러스터링 결과 시각화
 for cluster_idx in range(n_clusters):
     plt.figure(figsize=(8, 6))
-    for series_idx in range(len(X_scaled[y_pred == cluster_idx])):
-        plt.plot(time_columns, X_scaled[y_pred == cluster_idx][series_idx], "k-", alpha=0.2)
+    for series_idx in range(len(X[y_pred == cluster_idx])):
+        plt.plot(time_columns, X[y_pred == cluster_idx][series_idx], "k-", alpha=0.2)
     plt.plot(time_columns, kmeans.cluster_centers_[cluster_idx], "r-", linewidth=2)
     plt.title(f"Cluster {cluster_idx + 1}")
     plt.xlabel('시간대')
@@ -108,8 +116,8 @@ def visualize_silhouette(cluster_lists,X_features):
     
     # 리스트에 기재된 클러스터링 갯수들을 차례로 iteration 수행하면서 실루엣 개수 시각화
     for ind, n_cluster in enumerate(cluster_lists):
-        cluster = TimeSeriesKMeans(n_clusters=n_cluster, metric="dtw", verbose=False, random_state=0)
-        y_pred = cluster.fit_predict(X_scaled)
+        cluster = TimeSeriesKMeans(n_clusters=n_cluster, metric="euclidean", verbose=False, random_state=0)
+        y_pred = cluster.fit_predict(X)
         centers = cluster.cluster_centers_
 
         sil_avg = silhouette_score(X_features,y_pred)

@@ -79,6 +79,8 @@ print(nan_count)
 # 첫차와 막차를 제외한 시간대에서 결측치가 하나라도 존재하는 경우 즉 데이터가 모두 결측치이거나 데이터가 소수만 존재하는 경우 삭제
 df_Nop = df_Nop.dropna(how='any',subset=second_time_column)
 
+print(df_Nop)
+
 nan_count = df_Nop.isnull().sum()
 
 print(nan_count)

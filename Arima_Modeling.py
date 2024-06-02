@@ -1,16 +1,17 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
-import numpy as np
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 # 데이터 로드
 file_path = 'test_dataset/after_handling_nan.csv.csv'
-data = pd.read_csv(file_path,encoding='cp949')
+data = pd.read_csv(file_path, encoding='cp949')
 print(data.info())
-
 
 # 데이터 확인
 print(data.head())
+
 # 시간대 컬럼을 리스트로 만듭니다
 time_columns = ['06시이전', '06-07시간대', '07-08시간대', '08-09시간대', '09-10시간대', '10-11시간대', 
                 '11-12시간대', '12-13시간대', '13-14시간대', '14-15시간대', '15-16시간대', '16-17시간대', 
@@ -18,18 +19,13 @@ time_columns = ['06시이전', '06-07시간대', '07-08시간대', '08-09시간�
                 '23-24시간대', '24시이후']
 
 # 필요한 컬럼만 선택
-data = data[['호선','승하차구분'] + time_columns]
+data = data[['호선', '승하차구분'] + time_columns]
 
 # 결측치 확인
 print(data.isnull().sum())
 
 # 결측치가 있을 경우 이를 처리 (예: 0으로 채우기)
 data = data.fillna(0)
-
-
-import numpy as np
-from statsmodels.tsa.arima.model import ARIMA
-import matplotlib.pyplot as plt
 
 # 폰트 설정
 plt.rcParams['font.family'] = 'Malgun Gothic'
@@ -46,6 +42,13 @@ def map_boarding_alighting(value):
     else:
         return '하차'
 
+# MAPE, MPE 계산 함수 정의
+def mean_absolute_percentage_error(y_true, y_pred): 
+    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+
+def mean_percentage_error(y_true, y_pred):
+    return np.mean((y_true - y_pred) / y_true) * 100
+
 # ARIMA 모델 적용 및 예측
 for line in lines:
     for direction in directions:
@@ -56,12 +59,19 @@ for line in lines:
             time_series = np.array(time_series, dtype=float)
 
             # ARIMA 모델 적용
-            model = ARIMA(time_series, order=(8, 0, 35))
+            model = ARIMA(time_series, order=(8, 0, 35))  # (p, d, q)
             model_fit = model.fit()
 
             # 예측
             forecast = model_fit.forecast(steps=len(time_columns))
-            print(f'{line}호선 {direction} 예측 결과: {forecast}')
+
+            # 평가 지표 계산
+            mse = mean_squared_error(time_series, forecast)
+            rmse = np.sqrt(mse)
+            mae = mean_absolute_error(time_series, forecast)
+            mape = mean_absolute_percentage_error(time_series, forecast)
+            mpe = mean_percentage_error(time_series, forecast)
+
 
             # 결과 시각화
             plt.figure(figsize=(10, 6))
@@ -74,3 +84,9 @@ for line in lines:
             plt.xticks(rotation=45)
             plt.grid(True)
             plt.show()
+
+            print(f'{line}호선 {map_boarding_alighting(direction)} MSE: {mse}')
+            print(f'{line}호선 {map_boarding_alighting(direction)} RMSE: {rmse}')
+            print(f'{line}호선 {map_boarding_alighting(direction)} MAE: {mae}')
+            print(f'{line}호선 {map_boarding_alighting(direction)} MAPE: {mape}')
+            print(f'{line}호선 {map_boarding_alighting(direction)} MPE: {mpe}')

@@ -3,6 +3,8 @@ import pandas as pd
 # CSV 파일 읽기
 dataset_Congestion = pd.read_csv('original_dataset/dataset_Congestion.csv', encoding='cp949')
 
+print(dataset_Congestion)
+
 # 변환 비율 정의
 conversion_factors = {1: 15.9, 2: 15.9, 3: 15.9, 4: 15.9, 5: 12.7, 6: 12.7, 7: 12.7, 8: 9.5}
 

@@ -30,6 +30,8 @@ new_df[time_columns] = norm.fit_transform(new_df[time_columns])
 
 merged_df = pd.merge(new_df,df_name,on='역번호',how='left')
 
+merged_df.to_csv("test_dataset/merge_df.csv",encoding='cp949')
+
 
 print(merged_df)
 
@@ -38,23 +40,17 @@ plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False
 
 
-for idx,val in new_df.iterrows():
-    plt.plot(val.index, val.values,"k-", alpha=0.2)
-
-plt.xlabel('시간대')
-plt.ylabel('값')
-plt.title(idx)
-plt.legend()
-plt.show()
-
-
-
+# for idx,val in new_df.iterrows():
+#     plt.plot(val.index, val.values,"k-", alpha=0.2)
+#     plt.xlabel('시간대')
+#     plt.ylabel('값')
+#     plt.title(idx)
+#     plt.legend()
+#     plt.show()
 
 # selected_rows = merged_df[merged_df['역번호']<500]
 
 X = merged_df[time_columns].values
-
-
 
 # # 클러스터 수 범위
 # min_clusters = 2
@@ -64,25 +60,34 @@ X = merged_df[time_columns].values
 # inertia = []
 # silhouette_scores = []
 # for k in range(min_clusters, max_clusters + 1):
-#     kmeans = TimeSeriesKMeans(n_clusters=k, metric="euclidean", verbose=False, random_state=0)
+#     kmeans = TimeSeriesKMeans(n_clusters=k, metric="euclidean", random_state=0)
 #     y_pred = kmeans.fit_predict(X)
 #     silhouette_scores.append(silhouette_score(X, y_pred))
 #     inertia.append(kmeans.inertia_)
 
 
+# # # 시각화
+# # plt.plot(range(min_clusters, max_clusters + 1), inertia, marker='o')
+# # plt.xlabel('클러스터 수 (K)')
+# # plt.ylabel('inertia')
+# # plt.title('클러스터 수에 따른 Inertia 변화')
+# # plt.xticks(range(min_clusters, max_clusters + 1))
+# # plt.grid(True)
+# # plt.show()
+
 # # 시각화
-# plt.plot(range(min_clusters, max_clusters + 1), inertia, marker='o')
+# plt.plot(range(min_clusters, max_clusters + 1), silhouette_scores, marker='o')
 # plt.xlabel('클러스터 수 (K)')
-# plt.ylabel('inertia')
-# plt.title('클러스터 수에 따른 Inertia 변화')
+# plt.ylabel('실루엣 스코어')
+# plt.title('클러스터 수에 따른 실루엣 스코어 변화')
 # plt.xticks(range(min_clusters, max_clusters + 1))
 # plt.grid(True)
 # plt.show()
 
-
 # # 최적의 K 값 찾기
 # best_k = np.argmax(silhouette_scores) + min_clusters
 # print(f"최적의 클러스터 수 (K): {best_k}")
+# print(silhouette_scores)
 
 # K-means 클러스터링
 n_clusters = 2  # 클러스터 수
@@ -163,8 +168,20 @@ def visualize_silhouette(cluster_lists,X_features):
             
         axs[0,ind].axvline(x=sil_avg, color="red", linestyle="--")
 
-# visualize_silhouette([2,3,4,5],X_scaled)
+# visualize_silhouette([2,3,4,5],X)
 # plt.show()
 # print(merged_df)
 
-merged_df.to_csv('test_dataset/clustered_data.csv', encoding='cp949')
+merged_df['클러스터'] = kmeans.labels_
+print(merged_df)
+# merged_df.to_csv('test_dataset/clustered_data.csv', encoding='cp949')
+
+cluster_groups = merged_df.groupby('클러스터')
+
+cluster_station_lists = {}
+
+for cluster, group in cluster_groups:
+    station_names = group['역명'].tolist()
+    cluster_station_lists[cluster] = station_names
+
+print(cluster_station_lists)

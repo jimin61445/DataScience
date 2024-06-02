@@ -66,6 +66,7 @@ plt.show()
 best_k = np.argmax(silhouette_scores) + min_clusters
 print(f"최적의 클러스터 수 (K): {best_k}")
 
+print(silhouette_scores)
 
 kmeans = KMeans(n_clusters=best_k, random_state=42)
 
@@ -92,6 +93,9 @@ ax.set_title('K-평균 클러스터링 결과')
 ax.legend()
 plt.show()
 
+
+    
+
 df_name = pd.read_csv("test_dataset/station_name.csv",encoding='cp949')
 
 df = df.drop(df.columns[:1], axis=1)
@@ -99,7 +103,7 @@ df = pd.merge(df_name,df,on='역번호')
 
 df = df.drop(columns=['Unnamed: 0'])
 
-df.to_csv("test_dataset/cluster3.csv",encoding='cp949')
+# df.to_csv("test_dataset/cluster3.csv",encoding='cp949')
 
 cluster_groups = df.groupby('클러스터')
 
@@ -111,3 +115,6 @@ for cluster, group in cluster_groups:
     cluster_station_lists[cluster] = station_names
 
 print(cluster_station_lists)
+
+for i in range(0,6):
+    print(df['클러스터'].value_counts()[i])

@@ -20,7 +20,7 @@ plt.rcParams['axes.unicode_minus'] = False
 # 시간대 컬럼을 리스트로 만듭니다
 time_columns = ['06시이전', '06-07시간대', '07-08시간대', '08-09시간대', '09-10시간대', '10-11시간대', '11-12시간대', '12-13시간대', '13-14시간대', '14-15시간대', '15-16시간대', '16-17시간대', '17-18시간대', '18-19시간대', '19-20시간대', '20-21시간대', '21-22시간대', '22-23시간대', '23-24시간대', '24시이후']
 
-df = pd.read_csv('test_dataset/before_cluster2.csv',encoding='cp949')
+df = pd.read_csv('test_dataset/before_cluster3.csv',encoding='cp949')
 print(df)
 
 from sklearn.cluster import KMeans
@@ -92,9 +92,14 @@ ax.set_title('K-평균 클러스터링 결과')
 ax.legend()
 plt.show()
 
-df = df.drop(df.columns[:2], axis=1)
+df_name = pd.read_csv("test_dataset/station_name.csv",encoding='cp949')
 
-df.to_csv("test_dataset/cluster2.csv",encoding='cp949')
+df = df.drop(df.columns[:1], axis=1)
+df = pd.merge(df_name,df,on='역번호')
+
+df = df.drop(columns=['Unnamed: 0'])
+
+df.to_csv("test_dataset/cluster3.csv",encoding='cp949')
 
 cluster_groups = df.groupby('클러스터')
 

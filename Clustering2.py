@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 from scipy.interpolate import interp1d
+from scipy.interpolate import Akima1DInterpolator
 from sklearn.preprocessing import Normalizer
 
 
@@ -72,10 +73,9 @@ for idx, row in new_df.iterrows():
     values = row[time_columns].values
     mu, std = norm.fit(values)
     interpolation_function = interp1d(values, time_float, kind='linear')
-    print(row[time_columns].values.max()-mu, idx,interpolation_function(row[time_columns].values.max()-mu))
     station = idx[0]  # 인덱스의 첫 번째 요소는 역번호
     direction = idx[1]  # 인덱스의 두 번째 요소는 승하차구분
-    new_row = {'역번호': station, '승하차구분': direction, '정규분포 평균': interpolation_function(row[time_columns].values.max()-mu)}
+    new_row = {'역번호': station, '승하차구분': direction, '정규분포 평균': interpolation_function(row[time_columns].values.max()*0.9)}
     new_dfs.append(new_row)
 
 for idx, row in new_df_con.iterrows():
@@ -85,7 +85,7 @@ for idx, row in new_df_con.iterrows():
     best_time_index = np.argmax(values)
     best_time_float = time_float[best_time_index] -1  # 시간대를 실수형으로 변환
     station = idx  # 인덱스의 첫 번째 요소는 역번호
-    new_row = {'역번호': station, '혼잡도': interpolation_function(row[time_columns].values.max()-mu)}
+    new_row = {'역번호': station, '혼잡도': interpolation_function(row[time_columns].values.max()* 0.9)}
     con_dfs.append(new_row)
 new_dfs = pd.DataFrame(new_dfs)
 con_dfs = pd.DataFrame(con_dfs)
@@ -105,7 +105,7 @@ merged_df = pd.merge(result, con_dfs, on='역번호')
 
 print(merged_df)
 
-merged_df.to_csv("test_dataset/before_cluster2.csv",encoding='cp949')
+merged_df.to_csv("test_dataset/before_cluster3.csv",encoding='cp949')
 
 from sklearn.cluster import KMeans
 
@@ -115,7 +115,7 @@ kmeans.fit(merged_df[['승차', '하차', '혼잡도']])
 
 merged_df['클러스터'] = kmeans.labels_
 
-merged_df.to_csv("test_dataset/cluster2.csv",encoding='cp949')
+merged_df.to_csv("test_dataset/cluster3.csv",encoding='cp949')
 
 from mpl_toolkits.mplot3d import Axes3D
 

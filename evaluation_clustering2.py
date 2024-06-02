@@ -21,10 +21,6 @@ plt.rcParams['axes.unicode_minus'] = False
 time_columns = ['06시이전', '06-07시간대', '07-08시간대', '08-09시간대', '09-10시간대', '10-11시간대', '11-12시간대', '12-13시간대', '13-14시간대', '14-15시간대', '15-16시간대', '16-17시간대', '17-18시간대', '18-19시간대', '19-20시간대', '20-21시간대', '21-22시간대', '22-23시간대', '23-24시간대', '24시이후']
 
 df = pd.read_csv('test_dataset/before_cluster2.csv',encoding='cp949')
-df_name = pd.read_csv('test_dataset/station_name.csv',encoding='cp949')
-
-df = df.drop(df.columns[:1], axis=1)
-
 print(df)
 
 from sklearn.cluster import KMeans
@@ -58,7 +54,7 @@ plt.show()
 # 시각화
 plt.plot(range(min_clusters, max_clusters + 1), silhouette_scores, marker='o')
 plt.xlabel('클러스터 수 (K)')
-plt.ylabel('inertia')
+plt.ylabel('실루엣 스코어')
 plt.title('클러스터 수에 따른 실루엣 스코어 변화')
 plt.xticks(range(min_clusters, max_clusters + 1))
 plt.grid(True)
@@ -96,15 +92,11 @@ ax.set_title('K-평균 클러스터링 결과')
 ax.legend()
 plt.show()
 
-merged_df = pd.merge(df_name,df,on='역번호')
-merged_df = merged_df.drop(columns=["Unnamed: 0"])
-merged_df.to_csv("test_dataset/cluster2.csv",encoding='cp949')
+df = df.drop(df.columns[:2], axis=1)
 
-print(merged_df)
+df.to_csv("test_dataset/cluster2.csv",encoding='cp949')
 
-cluster_groups = merged_df.groupby('클러스터')
-
-
+cluster_groups = df.groupby('클러스터')
 
 
 cluster_station_lists = {}

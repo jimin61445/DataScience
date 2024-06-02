@@ -51,8 +51,8 @@ for line in lines:
             time_series = first_row[time_columns].values
             time_series = np.array(time_series, dtype=float)
 
-            # ARIMA 모델 적용 10 1 80
-            model = ARIMA(time_series, order=(8, 0, 50))
+            # ARIMA 모델 적용
+            model = ARIMA(time_series, order=(5, 1, 0))
             model_fit = model.fit()
 
             # 예측
